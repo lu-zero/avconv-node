@@ -1,6 +1,6 @@
-var ffmpeg = require('./ffmpeg-node.js');
+var avconv = require('./avconv-node.js');
 
-ffmpeg.mp4(
+avconv.mp4(
    './test.3gp',
    function (err, out, code) {
       console.log(err, out, code);

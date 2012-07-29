@@ -1,12 +1,12 @@
 {
-  "name": "ffmpeg-node",
-  "description": "Node.js Module for ffmpeg library",
+  "name": "avconv-node",
+  "description": "Node.js Module for Libav avconv tool",
   "version": "0.0.1",
-  "main": "ffmpeg-node.js",
-  "homepage": "https://github.com/xonecas/ffmpeg-node",
+  "main": "avconv-node.js",
+  "homepage": "https://github.com/lu_zero/avconv-node",
   "repository": {
     "type": "git",
-    "url": "git://github.com/xonecas/ffmpeg-node.git"
+    "url": "git://github.com/lu_zero/avconv-node.git"
   },
   "author": {
     "name" : "Sean Caetano Martin",

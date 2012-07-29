@@ -1,18 +1,18 @@
 
 /**
- * Module to drive ffmpeg video enconding library with shortcuts
- * for web video. Requires a  ffmpeg compiled with support for mp4/ogg/webm.
+ * Module to drive avconv video enconding library with shortcuts
+ * for web video. Requires an avconv compiled with support for mp4/ogg/webm.
  */
 
 var path = require('path'),
     spawn = require('child_process').spawn,
     that = this,
     queue = [],
-    maxActive = 5, // Maximum of active FFMpeg jobs
+    maxActive = 5, // Maximum of active avconv jobs
     active = 0;
 
 
-// The queue is limited to a max. of 5 active ffmpeg processes.
+// The queue is limited to a max. of 5 active avconv processes.
 
 
 function push (job) {
@@ -35,32 +35,32 @@ function next () {
 
 /**
  * Description:
- *    calls ffmpeg with the specified flags and returns the output
+ *    calls avconv with the specified flags and returns the output
  *    to the callback function.
  *
  * Parameters:
- * params - an array of ffmpeg options, ex: ['-i','./test.3gp']
- * callback - a function to call when ffmpeg is done, ex:
+ * params - an array of avconv options, ex: ['-i','./test.3gp']
+ * callback - a function to call when avconv is done, ex:
  *    function (stderr, stdout, exitCode) { ... }
  */
 
 exports.exec = function (params, callback) {
    console.log(params, callback);
-   
+
    if (params instanceof Array && params.length > 2) {
 
       var stderr = '', stdout = '',
-         ffmpeg = spawn('ffmpeg', params);
+         avconv = spawn('avconv', params);
 
-      ffmpeg.stderr.on('data', function (err) {
+      avconv.stderr.on('data', function (err) {
          stderr += err;
       });
 
-      ffmpeg.stdout.on('data', function (output) {
+      avconv.stdout.on('data', function (output) {
          stdout += output;
       });
 
-      ffmpeg.on('exit', function (code) {
+      avconv.on('exit', function (code) {
          callback(stderr, stdout, code);
          active--;
          next();
@@ -79,9 +79,9 @@ exports.exec = function (params, callback) {
  * Parameters:
  * type - one of 'mp4', 'ogg', 'webm', 'mp3', 'm4a' as a string.
  * file - path/to/the/inputFile.ext as a string.
- * params - an array of ffmpeg options to be added to the predefined ones (optional).
+ * params - an array of avconv options to be added to the predefined ones (optional).
  * output - path/to/the/outputFile.ext as a string (optional).
- * callback - function to call when ffmpeg is done, ex:
+ * callback - function to call when avconv is done, ex:
  *    function (stderr, stdout, exitCode) { ... }
  */
 
@@ -133,13 +133,12 @@ exports.convert = function (/* overloaded */) {
       case 'mp4':
          params = [
             '-i', file,
-            '-acodec', 'libfaac',
+            '-c:a', 'libvo_aacenc',
             '-ab', '128k',
-            '-ar', '44100',
-            '-vcodec', 'libx264',
-            '-vpre', 'slow',
-            '-vpre', 'baseline',
-            '-r', '25',
+            '-ar', '48k',
+            '-c:v', 'libx264',
+            '-tune', 'film',
+            '-preset', 'slow',
             '-y', output
          ].concat(params);
       break;
@@ -147,11 +146,9 @@ exports.convert = function (/* overloaded */) {
       case 'ogg':
          params = [
             '-i', file,
-            '-acodec', 'libvorbis',
+            '-c:a', 'libvorbis',
             '-ab', '128k',
-            '-ar', '44100',
-            '-vcodec', 'libtheora',
-            '-r', '25',
+            '-c:v', 'libtheora',
             '-y', output
          ].concat(params);
       break;
@@ -159,12 +156,10 @@ exports.convert = function (/* overloaded */) {
       case 'webm':
          params = [
             '-i', file,
-            '-acodec', 'libvorbis',
+            '-c:a', 'libvorbis',
             '-ab', '128k',
-            '-ar', '44100',
-            '-vcodec', 'libvpx',
-            '-b', '614400',
-            '-aspect', '16:9',
+            '-c:v', 'libvpx',
+            '-deadline', 'best',
             '-y', output
          ].concat(params);
       break;
@@ -172,9 +167,9 @@ exports.convert = function (/* overloaded */) {
       case 'mp3':
          params = [
             '-i', file,
-            '-acodec', 'libmp3lame',
+            '-c:a', 'libmp3lame',
             '-ab', '128k',
-            '-ar', '44100',
+            '-ar', '48k',
             '-y', output
          ].concat(params);
       break;
@@ -182,15 +177,15 @@ exports.convert = function (/* overloaded */) {
       case 'm4a':
          params = [
             '-i', file,
-            '-acodec', 'aac',
+            '-c:a', 'libvo_aacenc',
             '-ab', '64k',
-            '-ar', '44100',
+            '-ar', '48k',
             '-y', output
          ].concat(params);
       break;
    }
 
-   
+
    push({params: params, callback: callback});
 
 };
@@ -202,9 +197,9 @@ exports.convert = function (/* overloaded */) {
  *
  * Parameters:
  * file - path/to/the/inputFile.ext as a string.
- * params - an array of ffmpeg options to be added to the predefined ones (optional).
+ * params - an array of avconv options to be added to the predefined ones (optional).
  * output - path/to/the/outputFile.ext as a string (optional).
- * callback - function to call when ffmpeg is done, ex:
+ * callback - function to call when avconv is done, ex:
  *    function (stderr, stdout, exitCode) { ... }
  */
 
