@@ -1,6 +1,6 @@
 Node.js module to control avconv
 
-usage:
+Usage:
 
     avconv.call(
         [ ... ],                // array of avconv flags
@@ -11,3 +11,9 @@ usage:
         input,                  // input source
         callback                // function to call after avconv completed
     );
+
+Requirements:
+
+    Libav avconv compiled with libvorbis, libtheora, x264, libvpx and
+    libvo_aacenc.
+
